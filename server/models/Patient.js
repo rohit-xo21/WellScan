@@ -69,14 +69,11 @@ patientSchema.pre('save', async function(next) {
 
 // Compare password method
 patientSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
-
-// Remove password from JSON output
-patientSchema.methods.toJSON = function() {
-  const patientObject = this.toObject();
-  delete patientObject.password;
-  return patientObject;
+  try {
+    return await bcrypt.compare(candidatePassword, this.password);
+  } catch (error) {
+    throw error;
+  }
 };
 
 module.exports = mongoose.model('Patient', patientSchema);

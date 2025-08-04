@@ -51,6 +51,9 @@ Thumbs.db
 *.tmp
 *.temp
 
+# Test files
+cookies*.txt
+
 # Uploads
 server/uploads/*
 !server/uploads/.gitkeep
