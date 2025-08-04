@@ -34,7 +34,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Basic route
 app.get('/', (req, res) => {
   res.json({
-    message: 'Patient Portal API Server',
+    message: 'WellScan API Server',
     status: 'Running',
     version: '1.0.0'
   });

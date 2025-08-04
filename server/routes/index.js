@@ -14,7 +14,7 @@ router.use('/bookings', bookingRoutes);
 // API info endpoint
 router.get('/', (req, res) => {
   res.json({
-    message: 'Patient Portal API',
+    message: 'WellScan API',
     version: '1.0.0',
     endpoints: {
       patients: '/api/patients',

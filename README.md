@@ -1,4 +1,4 @@
-# Patient Portal - Lab Tests Booking System
+# WellScan - Lab Tests Booking System
 
 A full-stack patient portal for digital health clinic allowing patients to register, view lab tests, book appointments, and download reports.
 
@@ -63,7 +63,7 @@ A full-stack patient portal for digital health clinic allowing patients to regis
    cp server/.env.example server/.env
    
    # Configure server/.env with:
-   # MONGODB_URI=mongodb://localhost:27017/patient-portal
+   # MONGODB_URI=mongodb://localhost:27017/wellscan
    # JWT_SECRET=your-super-secret-key-here
    # PORT=5000
    # NODE_ENV=development
@@ -256,6 +256,6 @@ CLIENT_URL=http://localhost:3000
 
 ## 📝 Development Notes
 
-This project is being built as a demonstration of full-stack healthcare application development with modern web technologies.
+This WellScan project is being built as a demonstration of full-stack healthcare application development with modern web technologies.
 
-**Current Focus:** Setting up the backend foundation and API structure.
+**Current Focus:** Complete implementation with modern UI/UX design and minimal clean interface.
