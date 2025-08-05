@@ -66,3 +66,4 @@ data/
 *.pem
 *.key
 *.crt
+.vercel

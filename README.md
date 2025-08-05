@@ -2,37 +2,6 @@
 
 A comprehensive full-stack patient portal for digital health clinic enabling patients to register, browse lab tests, book appointments with intelligent scheduling, and download professional PDF reports.
 
-## 🏆 Project Excellence Overview
-
-### Code Quality & Architecture (30%)
-- **✅ Modular Structure:** Organized into clear frontend/backend separation with logical folder hierarchy
-- **✅ Clean Code:** Consistent naming conventions, proper commenting, and readable code structure
-- **✅ Component-Based:** React components with proper separation of concerns and reusability
-- **✅ Professional Documentation:** Comprehensive inline comments and JSDoc-style documentation
-
-### API Integration & Backend Logic (25%)
-- **✅ RESTful API Design:** Well-structured endpoints following REST conventions
-- **✅ Robust Error Handling:** Comprehensive error catching and meaningful error messages
-- **✅ Smart Booking Logic:** Duration-based appointment scheduling with overlap prevention
-- **✅ Database Integration:** MongoDB with Mongoose ODM and proper schema design
-
-### Frontend Quality (20%)
-- **✅ Modern UI/UX:** Responsive design with Tailwind CSS and mobile-first approach
-- **✅ Dynamic Rendering:** Real-time data updates and interactive components
-- **✅ Form Management:** Comprehensive validation and user feedback systems
-- **✅ Professional Design:** Clean, modern interface with consistent branding
-
-### Security & Validation (15%)
-- **✅ JWT Authentication:** Secure token-based authentication with protected routes
-- **✅ Input Validation:** Frontend and backend validation with express-validator
-- **✅ Password Security:** bcryptjs hashing with salt rounds for secure password storage
-- **✅ File Security:** Secure PDF generation and download with proper access controls
-
-### Documentation & Clarity (10%)
-- **✅ Complete README:** Detailed setup instructions, API documentation, and feature descriptions
-- **✅ Inline Comments:** Comprehensive code documentation and JSDoc-style comments
-- **✅ Code Structure:** Clear organization and professional development practices
-
 
 ## 🚀 Tech Stack
 
@@ -78,7 +47,7 @@ A comprehensive full-stack patient portal for digital health clinic enabling pat
 
 1. **Project initialized**
    ```bash
-   git clone https://github.com/rohit-xo21/Patient_Lab_Test_Portal.git
+   git clone https://github.com/rohit-xo21/WellScan.git
    cd Patient-Lab-Test-Portal
    ```
 
@@ -268,7 +237,6 @@ client/
 │   ├── contexts/           # React Context for state management
 │   ├── services/           # API integration layer
 │   ├── assets/             # Static assets (images, logos)
-│   └── styles/             # Global styles and configurations
 ```
 
 ### Backend Architecture
@@ -366,42 +334,6 @@ This project follows structured commit messages:
 - JWT token expiration handling
 - Password hashing validation
 
-## 📋 Evaluation Criteria Compliance
-
-### ✅ Code Clarity & Structure (30%)
-- **Modular Architecture:** Clear separation of concerns with organized folder structure
-- **Clean Code Standards:** Consistent naming, proper indentation, and readable code
-- **Component Design:** Reusable React components with proper prop handling
-- **Documentation:** Comprehensive JSDoc comments and inline documentation
-- **Professional Structure:** Industry-standard project organization
-
-### ✅ API Integration & Backend Logic (25%)
-- **RESTful Design:** Well-structured endpoints following REST conventions
-- **Error Handling:** Comprehensive try-catch blocks with meaningful error messages
-- **Database Operations:** Efficient MongoDB queries with proper validation
-- **Middleware Implementation:** Authentication and validation middleware
-- **Business Logic:** Smart booking system with conflict detection
-
-### ✅ Frontend Quality (20%)
-- **Modern UI/UX:** Professional design with Tailwind CSS and responsive layout
-- **Dynamic Rendering:** Real-time data updates and interactive components
-- **Form Management:** Comprehensive validation with user-friendly error display
-- **State Management:** Efficient React Context API implementation
-- **Performance:** Optimized rendering and data fetching
-
-### ✅ Security & Validation (15%)
-- **JWT Authentication:** Secure token-based authentication system
-- **Input Validation:** Frontend and backend validation with express-validator
-- **Password Security:** bcryptjs hashing with salt rounds for secure storage
-- **Route Protection:** Protected routes requiring authentication
-- **Data Sanitization:** Secure handling of user inputs and file operations
-
-### ✅ Documentation & Clarity (10%)
-- **Complete README:** Detailed setup instructions and feature documentation
-- **API Documentation:** Comprehensive endpoint documentation with examples
-- **Code Comments:** Professional inline comments and JSDoc-style documentation
-- **Architecture Diagrams:** Clear project structure and data flow explanations
-- **Development Guidelines:** Commit conventions and coding standards
 
 ## 🏆 Project Highlights
 
@@ -476,4 +408,3 @@ CLIENT_URL=http://localhost:3000
 
 This WellScan project is being built as a demonstration of full-stack healthcare application development with modern web technologies.
 
-**Current Focus:** Complete implementation with modern UI/UX design and minimal clean interface.
