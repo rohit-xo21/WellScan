@@ -2,6 +2,12 @@ import { useState, useEffect } from 'react'
 import { bookingsAPI, reportsAPI } from '../services/api'
 import { useToast } from '../contexts/useToast'
 import { 
+  formatAppointmentDate, 
+  formatBookingDate, 
+  formatReportAvailableTime, 
+  isPast 
+} from '../utils/timezone'
+import { 
   Droplets, 
   TestTube, 
   Scan, 
@@ -80,13 +86,7 @@ const BookingHistory = () => {
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+    return formatAppointmentDate(dateString)
   }
 
   const handleCancelBooking = async (bookingId) => {
@@ -295,7 +295,7 @@ const BookingHistory = () => {
                               {booking.testId.duration}
                             </span>
                           )}
-                          <span>Booked: {new Date(booking.createdAt).toLocaleDateString()}</span>
+                          <span>Booked: {formatBookingDate(booking.createdAt)}</span>
                         </div>
 
                         {/* Actions */}
@@ -326,15 +326,15 @@ const BookingHistory = () => {
                           )}
 
                           {/* Report Not Available Yet */}
-                          {!booking.reportAvailable && booking.status === 'scheduled' && new Date(booking.appointmentDate) <= new Date() && (
+                          {!booking.reportAvailable && booking.status === 'scheduled' && isPast(booking.appointmentDate) && (
                             <div className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm bg-yellow-50 text-yellow-700 border border-yellow-200">
                               <Clock className="w-4 h-4" />
-                              Report available {new Date(booking.reportAvailableTime).toLocaleString()}
+                              Report available {formatReportAvailableTime(booking.reportAvailableTime)}
                             </div>
                           )}
                           
                           {/* Cancel Button for Future Appointments */}
-                          {booking.status === 'scheduled' && new Date(booking.appointmentDate) > new Date() && (
+                          {booking.status === 'scheduled' && !isPast(booking.appointmentDate) && (
                             <button
                               onClick={() => handleCancelBooking(booking._id)}
                               className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"

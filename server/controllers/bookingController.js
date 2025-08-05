@@ -11,6 +11,7 @@
 
 const { Booking, Test } = require('../models');
 const { validationResult } = require('express-validator');
+const { getCurrentIST } = require('../utils/timezone');
 
 /**
  * Create a new lab test booking
@@ -169,7 +170,7 @@ const getPatientBookings = async (req, res) => {
     // Add report availability logic
     const bookingsWithReportStatus = bookings.map(booking => {
       const bookingObj = booking.toObject();
-      const currentTime = new Date();
+      const currentTime = getCurrentIST();
       const appointmentTime = new Date(booking.appointmentDate);
       
       // Parse duration string to get minutes (e.g., "30 minutes" -> 30)
@@ -231,7 +232,7 @@ const getBookingById = async (req, res) => {
     }
 
     // Add report availability logic
-    const currentTime = new Date();
+    const currentTime = getCurrentIST();
     const appointmentTime = new Date(booking.appointmentDate);
     
     // Parse duration string to get minutes (e.g., "30 minutes" -> 30)

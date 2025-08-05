@@ -18,6 +18,7 @@
 import { useState, useEffect } from 'react'
 import { testsAPI, bookingsAPI } from '../services/api'
 import { useToast } from '../contexts/useToast'
+import { getCurrentISTForInput } from '../utils/timezone'
 import { 
   Droplets, 
   TestTube, 
@@ -292,7 +293,7 @@ const TestCatalog = () => {
                   type="datetime-local"
                   value={appointmentDate}
                   onChange={(e) => setAppointmentDate(e.target.value)}
-                  min={new Date().toISOString().slice(0, 16)}
+                  min={getCurrentISTForInput()}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>

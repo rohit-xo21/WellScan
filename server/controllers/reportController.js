@@ -1,5 +1,6 @@
 const PDFDocument = require('pdfkit');
 const { Booking } = require('../models');
+const { getCurrentIST, formatIST } = require('../utils/timezone');
 
 const generateReport = async (req, res) => {
   try {
@@ -26,7 +27,7 @@ const generateReport = async (req, res) => {
     }
 
     // Check if report is available (after test duration or if completed)
-    const currentTime = new Date();
+    const currentTime = getCurrentIST();
     const appointmentTime = new Date(booking.appointmentDate);
     
     // Parse duration string to get minutes (e.g., "30 minutes" -> 30)
@@ -79,7 +80,7 @@ const generateReport = async (req, res) => {
        .text(`Name: ${booking.patientId.name}`, 50, 160)
        .text(`Email: ${booking.patientId.email}`, 50, 180)
        .text(`Phone: ${booking.patientId.phone}`, 50, 200)
-       .text(`Date of Birth: ${new Date(booking.patientId.dateOfBirth).toLocaleDateString()}`, 50, 220);
+       .text(`Date of Birth: ${formatIST(booking.patientId.dateOfBirth)}`, 50, 220);
 
     // Test Information
     doc.fontSize(16)
@@ -101,10 +102,10 @@ const generateReport = async (req, res) => {
     doc.fontSize(12)
        .fillColor('#374151')
        .text(`Booking ID: ${booking._id}`, 50, 420)
-       .text(`Appointment Date: ${new Date(booking.appointmentDate).toLocaleDateString()}`, 50, 440)
+       .text(`Appointment Date: ${formatIST(booking.appointmentDate)}`, 50, 440)
        .text(`Status: ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}`, 50, 460)
        .text(`Total Amount Paid: ₹${booking.totalAmount.toFixed(2)}`, 50, 480)
-       .text(`Booking Date: ${new Date(booking.createdAt).toLocaleDateString()}`, 50, 500);
+       .text(`Booking Date: ${formatIST(booking.createdAt)}`, 50, 500);
 
     // Lab Results Section (Dummy data)
     doc.fontSize(16)
