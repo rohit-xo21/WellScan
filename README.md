@@ -361,7 +361,7 @@ This project follows structured commit messages:
 
 ```bash
 # Clone repository
-git clone https://github.com/rohit-xo21/Patient_Lab_Test_Portal.git
+git clone https://github.com/rohit-xo21/WellScan.git
 
 # Install dependencies
 npm install        # Root dependencies
