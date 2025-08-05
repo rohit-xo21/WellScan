@@ -52,7 +52,7 @@ app.use(cors({
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true, // Allow cookies for JWT authentication
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
   exposedHeaders: ['Authorization'] // Expose authorization header to frontend
 }));
@@ -61,6 +61,15 @@ app.use(cors({
 app.use(cookieParser()); // Parse cookies for JWT tokens
 app.use(express.json({ limit: '10mb' })); // Parse JSON requests with size limit
 app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded requests
+
+// Handle preflight OPTIONS requests explicitly
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
+});
 
 // Serve static files for uploaded content (reports, etc.)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

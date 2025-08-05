@@ -267,12 +267,20 @@ const getBookingById = async (req, res) => {
 // Cancel booking
 const cancelBooking = async (req, res) => {
   try {
+    console.log('Cancel booking request received:', {
+      bookingId: req.params.id,
+      patientId: req.patient.id,
+      method: req.method,
+      headers: req.headers
+    });
+
     const booking = await Booking.findOne({
       _id: req.params.id,
       patientId: req.patient.id
     });
 
     if (!booking) {
+      console.log('Booking not found:', req.params.id);
       return res.status(404).json({
         success: false,
         message: 'Booking not found'
@@ -295,6 +303,8 @@ const cancelBooking = async (req, res) => {
 
     booking.status = 'cancelled';
     await booking.save();
+
+    console.log('Booking cancelled successfully:', booking._id);
 
     res.json({
       success: true,

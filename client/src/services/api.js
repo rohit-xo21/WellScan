@@ -27,7 +27,11 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       clearAuthToken()
-      window.location.href = '/login'
+      // Only redirect if we're not already on login or register page
+      const currentPath = window.location.pathname
+      if (currentPath !== '/login' && currentPath !== '/register' && currentPath !== '/') {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }

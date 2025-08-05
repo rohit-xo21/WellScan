@@ -13,12 +13,23 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
+      // First check if we have a token before making API call
+      const token = getAuthToken()
+      if (!token) {
+        setLoading(false)
+        return
+      }
+
       const response = await authAPI.getProfile()
       if (response.data.success) {
         setUser(response.data.data)
       }
     } catch (error) {
       console.log('Not authenticated:', error.message)
+      // Clear invalid tokens
+      if (error.response?.status === 401) {
+        clearAuthToken()
+      }
     } finally {
       setLoading(false)
     }
@@ -32,10 +43,12 @@ export const AuthProvider = ({ children }) => {
         // Store token in both localStorage and cookies for cross-domain compatibility
         if (response.data.data.token) {
           storeAuthToken(response.data.data.token)
+          console.log('Token stored successfully:', response.data.data.token.substring(0, 20) + '...')
         }
         return { success: true }
       }
     } catch (error) {
+      console.error('Login error:', error)
       return { 
         success: false, 
         message: error.response?.data?.message || 'Login failed' 

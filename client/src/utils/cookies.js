@@ -9,7 +9,17 @@
 export const setCookie = (name, value, days = 30) => {
   const expires = new Date()
   expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000))
-  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=None;Secure`
+  
+  // Check if we're in production (HTTPS) or development (HTTP)
+  const isProduction = window.location.protocol === 'https:'
+  
+  if (isProduction) {
+    // Production: Use secure cookies with SameSite=None for cross-domain
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=None;Secure`
+  } else {
+    // Development: Use less strict cookies for localhost
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`
+  }
 }
 
 /**
@@ -28,7 +38,13 @@ export const getCookie = (name) => {
  * @param {string} name - Cookie name to delete
  */
 export const deleteCookie = (name) => {
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=None;Secure`
+  const isProduction = window.location.protocol === 'https:'
+  
+  if (isProduction) {
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=None;Secure`
+  } else {
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax`
+  }
 }
 
 /**
@@ -42,6 +58,15 @@ export const getAuthToken = () => {
   // If no localStorage token, try multiple cookie names
   if (!token) {
     token = getCookie('token') || getCookie('authToken')
+  }
+  
+  // Debug logging in development
+  if (!token && import.meta.env.DEV) {
+    console.log('Debug: No auth token found in localStorage or cookies')
+    console.log('LocalStorage token:', localStorage.getItem('token'))
+    console.log('Cookie token:', getCookie('token'))
+    console.log('AuthToken cookie:', getCookie('authToken'))
+    console.log('All cookies:', document.cookie)
   }
   
   return token

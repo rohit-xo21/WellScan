@@ -87,9 +87,24 @@ export const formatReportDate = (date) => {
  * @returns {string} Current IST time formatted for datetime-local input
  */
 export const getCurrentISTForInput = () => {
-  const now = new Date();
-  const istTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-  return istTime.toISOString().slice(0, 16);
+  try {
+    const now = new Date();
+    // Get IST time and format for datetime-local input
+    const istTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    
+    // Format as YYYY-MM-DDTHH:MM for datetime-local input
+    const year = istTime.getFullYear();
+    const month = String(istTime.getMonth() + 1).padStart(2, '0');
+    const day = String(istTime.getDate()).padStart(2, '0');
+    const hours = String(istTime.getHours()).padStart(2, '0');
+    const minutes = String(istTime.getMinutes()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  } catch (error) {
+    console.error('Error getting IST time:', error);
+    // Fallback to local time
+    return new Date().toISOString().slice(0, 16);
+  }
 };
 
 /**
