@@ -1,26 +1,15 @@
 {
   "version": 2,
-  "name": "wellscan-api",
   "builds": [
     {
       "src": "server.js",
       "use": "@vercel/node"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "server.js"
+      "source": "/(.*)",
+      "destination": "/server.js"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "functions": {
-    "server.js": {
-      "maxDuration": 30
-    }
-  },
-  "regions": ["sin1"],
-  "outputDirectory": "dist"
+  ]
 }

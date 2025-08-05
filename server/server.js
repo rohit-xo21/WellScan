@@ -19,24 +19,55 @@ const { seedTests } = require('./utils/seedData');
 // Load environment variables from .env file
 dotenv.config();
 
-// Establish MongoDB connection and seed initial test data
-connectDB().then(() => {
-  console.log('Database connected successfully');
-  // Seed initial lab tests data after database connection
-  seedTests();
-}).catch(err => {
-  console.error('Database connection failed:', err);
-  process.exit(1);
-});
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS configuration for cross-origin requests - allow all HTTPS origins
+// Initialize database connection for serverless
+let isConnected = false;
+
+const ensureDbConnection = async () => {
+  if (isConnected) {
+    return;
+  }
+  
+  try {
+    await connectDB();
+    console.log('Database connected successfully');
+    
+    // Seed initial lab tests data after database connection (only once)
+    if (!isConnected) {
+      try {
+        await seedTests();
+        console.log('Test data seeded successfully');
+      } catch (seedError) {
+        console.error('Error seeding test data:', seedError.message);
+        // Don't throw error for seeding issues in production
+        if (process.env.NODE_ENV !== 'production') {
+          throw seedError;
+        }
+      }
+    }
+    
+    isConnected = true;
+  } catch (err) {
+    console.error('Database connection failed:', err);
+    isConnected = false;
+    throw err;
+  }
+};
+
+// CORS configuration for production deployment
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (mobile apps, etc.)
     if (!origin) return callback(null, true);
+    
+    // Production allowed origins
+    const allowedOrigins = [
+      'https://well-scan.vercel.app',
+      'https://wellscan.vercel.app',
+      process.env.CLIENT_URL
+    ];
     
     // Allow all HTTPS origins for maximum compatibility
     if (origin.startsWith('https://')) {
@@ -61,6 +92,20 @@ app.use(cors({
 app.use(cookieParser()); // Parse cookies for JWT tokens
 app.use(express.json({ limit: '10mb' })); // Parse JSON requests with size limit
 app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded requests
+
+// Database connection middleware for serverless
+app.use(async (req, res, next) => {
+  try {
+    await ensureDbConnection();
+    next();
+  } catch (error) {
+    console.error('Database connection error:', error);
+    res.status(500).json({
+      error: 'Database connection failed',
+      message: 'Unable to connect to database'
+    });
+  }
+});
 
 // Handle preflight OPTIONS requests explicitly
 app.options('*', (req, res) => {
@@ -144,9 +189,14 @@ app.use('*', (req, res) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`API Base URL: http://localhost:${PORT}`);
-});
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`API Base URL: http://localhost:${PORT}`);
+  });
+}
+
+// Export for Vercel
+module.exports = app;

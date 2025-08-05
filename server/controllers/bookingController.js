@@ -267,12 +267,15 @@ const getBookingById = async (req, res) => {
 // Cancel booking
 const cancelBooking = async (req, res) => {
   try {
-    console.log('Cancel booking request received:', {
-      bookingId: req.params.id,
-      patientId: req.patient.id,
-      method: req.method,
-      headers: req.headers
-    });
+    // Debug logging only in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Cancel booking request received:', {
+        bookingId: req.params.id,
+        patientId: req.patient.id,
+        method: req.method,
+        headers: req.headers
+      });
+    }
 
     const booking = await Booking.findOne({
       _id: req.params.id,
@@ -280,7 +283,7 @@ const cancelBooking = async (req, res) => {
     });
 
     if (!booking) {
-      console.log('Booking not found:', req.params.id);
+      if (process.env.NODE_ENV === 'development') console.log('Booking not found:', req.params.id);
       return res.status(404).json({
         success: false,
         message: 'Booking not found'
@@ -304,7 +307,7 @@ const cancelBooking = async (req, res) => {
     booking.status = 'cancelled';
     await booking.save();
 
-    console.log('Booking cancelled successfully:', booking._id);
+    if (process.env.NODE_ENV === 'development') console.log('Booking cancelled successfully:', booking._id);
 
     res.json({
       success: true,

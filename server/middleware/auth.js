@@ -5,38 +5,41 @@ const auth = async (req, res, next) => {
   try {
     let token;
 
-    console.log('Auth middleware - Request:', {
-      method: req.method,
-      url: req.url,
-      headers: {
-        authorization: req.headers.authorization ? 'Bearer [TOKEN]' : 'None',
-        origin: req.headers.origin,
-        referer: req.headers.referer
-      },
-      cookies: req.cookies ? Object.keys(req.cookies) : []
-    });
+    // Debug logging only in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Auth middleware - Request:', {
+        method: req.method,
+        url: req.url,
+        headers: {
+          authorization: req.headers.authorization ? 'Bearer [TOKEN]' : 'None',
+          origin: req.headers.origin,
+          referer: req.headers.referer
+        },
+        cookies: req.cookies ? Object.keys(req.cookies) : []
+      });
+    }
 
     // Check multiple sources for token (comprehensive fallback)
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       // 1. Authorization header (most reliable for cross-domain)
       token = req.headers.authorization.split(' ')[1];
-      console.log('Token found in Authorization header');
+      if (process.env.NODE_ENV === 'development') console.log('Token found in Authorization header');
     } else if (req.cookies && req.cookies.token) {
       // 2. Main token cookie
       token = req.cookies.token;
-      console.log('Token found in main cookie');
+      if (process.env.NODE_ENV === 'development') console.log('Token found in main cookie');
     } else if (req.cookies && req.cookies.authToken) {
       // 3. Fallback authToken cookie
       token = req.cookies.authToken;
-      console.log('Token found in fallback cookie');
+      if (process.env.NODE_ENV === 'development') console.log('Token found in fallback cookie');
     } else if (req.headers['x-auth-token']) {
       // 4. Custom header fallback
       token = req.headers['x-auth-token'];
-      console.log('Token found in custom header');
+      if (process.env.NODE_ENV === 'development') console.log('Token found in custom header');
     }
 
     if (!token) {
-      console.log('No token found in any source');
+      if (process.env.NODE_ENV === 'development') console.log('No token found in any source');
       return res.status(401).json({
         success: false,
         message: 'Access denied. No token provided.'

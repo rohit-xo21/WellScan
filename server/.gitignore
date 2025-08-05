@@ -82,3 +82,4 @@ Thumbs.db
 *.pem
 *.key
 *.crt
+.vercel

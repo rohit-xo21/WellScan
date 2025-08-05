@@ -373,7 +373,7 @@ npm run dev        # Start both frontend and backend
 ```
 
 **Live Demo:** [WellScan Patient Portal](https://well-scan.vercel.app/)
-**Backend API:** [WellScan API Server](https://wellscan.onrender.com/)
+**Backend API:** [WellScan API Server](https://wellscan-api.vercel.app/)
 
 
 ---
@@ -392,7 +392,7 @@ npm run dev        # Start both frontend and backend
 
 ### Live Application
 🌐 **Frontend (Vercel):** [https://well-scan.vercel.app/](https://well-scan.vercel.app/)
-🔗 **Backend API (Render):** [https://wellscan.onrender.com/](https://wellscan.onrender.com/)
+🔗 **Backend API (Vercel):** [https://wellscan-api.vercel.app/](https://wellscan-api.vercel.app/)
 📊 **Database:** MongoDB Atlas (Cloud)
 
 ### Environment Variables
@@ -406,7 +406,7 @@ CLIENT_URL=http://localhost:3000
 
 ### Deployment Targets
 - **Frontend:** Vercel - [https://well-scan.vercel.app/](https://well-scan.vercel.app/)
-- **Backend:** Render - [https://wellscan.onrender.com/](https://wellscan.onrender.com/)
+- **Backend:** Vercel - [https://wellscan-api.vercel.app/](https://wellscan-api.vercel.app/)
 - **Database:** MongoDB Atlas
 
 ## 📝 Development Notes
