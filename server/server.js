@@ -32,30 +32,19 @@ connectDB().then(() => {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS configuration for cross-origin requests
-const allowedOrigins = [
-  'http://localhost:5173',               // Local development
-  'https://well-scan.vercel.app',        // Production frontend
-  'https://wellscan-*.vercel.app',       // All Vercel deployments
-  process.env.CLIENT_URL                 // Environment specific URL
-].filter(Boolean); // Remove any undefined values
-
+// CORS configuration for cross-origin requests - allow all HTTPS origins
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (mobile apps, etc.)
     if (!origin) return callback(null, true);
     
-    // Check if origin is in allowed list or matches pattern
-    const isAllowed = allowedOrigins.some(allowedOrigin => {
-      if (allowedOrigin.includes('*')) {
-        // Handle wildcard patterns
-        const pattern = allowedOrigin.replace('*', '.*');
-        return new RegExp(pattern).test(origin);
-      }
-      return allowedOrigin === origin;
-    });
+    // Allow all HTTPS origins for maximum compatibility
+    if (origin.startsWith('https://')) {
+      return callback(null, true);
+    }
     
-    if (isAllowed) {
+    // Allow localhost for development
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
       return callback(null, true);
     }
     
@@ -64,7 +53,7 @@ app.use(cors({
   },
   credentials: true, // Allow cookies for JWT authentication
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ["*"],
   exposedHeaders: ['Authorization'] // Expose authorization header to frontend
 }));
 

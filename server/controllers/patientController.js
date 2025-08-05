@@ -69,13 +69,13 @@ const registerPatient = async (req, res) => {
     // Generate token
     const token = generateToken(patient._id);
 
-    // Set token as HTTP-only cookie for cross-domain authentication
+    // Set token as cookie for cross-domain authentication - allow all domains
     res.cookie('token', token, {
       httpOnly: false, // Allow frontend access for cross-domain issues
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Allow cross-domain cookies in production
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-      // Removed domain restriction to allow cross-domain cookies
+      secure: true, // Always use secure cookies for HTTPS
+      sameSite: 'none', // Allow cross-domain cookies for all environments
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      path: '/' // Available on all paths
     });
 
     res.status(201).json({
@@ -162,13 +162,13 @@ const loginPatient = async (req, res) => {
     // Generate token
     const token = generateToken(patient._id);
 
-    // Set token as HTTP-only cookie for cross-domain authentication
+    // Set token as cookie for cross-domain authentication - allow all domains
     res.cookie('token', token, {
       httpOnly: false, // Allow frontend access for cross-domain issues
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Allow cross-domain cookies in production
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-      // Removed domain restriction to allow cross-domain cookies
+      secure: true, // Always use secure cookies for HTTPS
+      sameSite: 'none', // Allow cross-domain cookies for all environments
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      path: '/' // Available on all paths
     });
 
     // Remove password from patient object
@@ -196,8 +196,12 @@ const loginPatient = async (req, res) => {
 // Logout patient
 const logoutPatient = async (req, res) => {
   try {
-    // Clear the token cookie
-    res.clearCookie('token');
+    // Clear the token cookie with same settings as when it was set
+    res.clearCookie('token', {
+      secure: true,
+      sameSite: 'none',
+      path: '/'
+    });
 
     res.json({
       success: true,
