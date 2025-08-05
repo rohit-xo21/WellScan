@@ -47,8 +47,8 @@ A comprehensive full-stack patient portal for digital health clinic enabling pat
 
 1. **Project initialized**
    ```bash
-   git clone https://github.com/rohit-xo21/WellScan.git
-   cd WellScan
+   git clone https://github.com/rohit-xo21/Patient_Lab_Test_Portal.git
+   cd Patient_Lab_Test_Portal
    ```
 
 2. **Dependencies installation**
@@ -166,6 +166,10 @@ A comprehensive full-stack patient portal for digital health clinic enabling pat
 
 Run the application and test:
 - Patient registration with validation
+- Lab tests catalog browsing
+- Booking creation and history
+- Report download functionality
+
 ## 🔒 Security Implementation
 
 ### Authentication & Authorization
@@ -250,10 +254,6 @@ server/
 └── utils/                 # Utility functions and helpers
 ```
 
-- Lab tests catalog browsing
-- Booking creation and history
-- Report download functionality
-
 ## 📈 Development Progress
 
 ### Phase 1: Project Setup & Backend Foundation ✅
@@ -308,8 +308,6 @@ This project follows structured commit messages:
 - `fix: resolve CORS issues in API endpoints`
 - `docs: add API endpoint documentation to README`
 - `ui: improve form styling and responsive design`
-
-## 🧪 Testing Plan
 
 ## 🧪 Testing & Quality Assurance
 
@@ -375,18 +373,7 @@ npm run dev        # Start both frontend and backend
 **Live Demo:** [WellScan Patient Portal](https://well-scan.vercel.app/)
 **Backend API:** [WellScan API Server](https://wellscan-api.vercel.app/)
 
-
 ---
-
-*Built with ❤️ by the WellScan Development Team*
-- Test all API endpoints with proper responses
-- Validate error handling for database operations
-
-### Frontend Testing
-- Test form submissions and validation messages
-- Verify navigation between different views
-- Test authentication flow (login/logout)
-- Check responsive design on different screen sizes
 
 ## 🚀 Deployment Plan
 
