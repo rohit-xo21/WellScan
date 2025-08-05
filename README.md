@@ -48,7 +48,7 @@ A comprehensive full-stack patient portal for digital health clinic enabling pat
 1. **Project initialized**
    ```bash
    git clone https://github.com/rohit-xo21/WellScan.git
-   cd Patient-Lab-Test-Portal
+   cd WellScan
    ```
 
 2. **Dependencies installation**
