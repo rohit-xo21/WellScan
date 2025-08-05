@@ -93,16 +93,42 @@ const getPatientBookings = async (req, res) => {
 
     // Get bookings with pagination
     const bookings = await Booking.find(query)
+      .populate([
+        { path: 'testId', select: 'name description price category duration' },
+        { path: 'patientId', select: 'name email phone' }
+      ])
       .sort({ appointmentDate: -1 })
       .skip(skip)
       .limit(parseInt(limit));
+
+    // Add report availability logic
+    const bookingsWithReportStatus = bookings.map(booking => {
+      const bookingObj = booking.toObject();
+      const currentTime = new Date();
+      const appointmentTime = new Date(booking.appointmentDate);
+      
+      // Parse duration string to get minutes (e.g., "30 minutes" -> 30)
+      const durationStr = booking.testId.duration || "30 minutes";
+      const durationMatch = durationStr.match(/(\d+)/);
+      const durationMinutes = durationMatch ? parseInt(durationMatch[1]) : 30;
+      
+      // Report becomes available after test duration or if status is completed
+      const reportAvailableTime = new Date(appointmentTime.getTime() + (durationMinutes * 60 * 1000)); // duration after appointment
+      const isReportAvailable = currentTime >= reportAvailableTime || booking.status === 'completed';
+      
+      return {
+        ...bookingObj,
+        reportAvailable: isReportAvailable,
+        reportAvailableTime: reportAvailableTime
+      };
+    });
 
     // Get total count
     const total = await Booking.countDocuments(query);
 
     res.json({
       success: true,
-      data: bookings,
+      data: bookingsWithReportStatus,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
@@ -127,7 +153,10 @@ const getBookingById = async (req, res) => {
     const booking = await Booking.findOne({
       _id: req.params.id,
       patientId: req.patient.id
-    });
+    }).populate([
+      { path: 'testId', select: 'name description price category duration' },
+      { path: 'patientId', select: 'name email phone' }
+    ]);
 
     if (!booking) {
       return res.status(404).json({
@@ -136,9 +165,27 @@ const getBookingById = async (req, res) => {
       });
     }
 
+    // Add report availability logic
+    const currentTime = new Date();
+    const appointmentTime = new Date(booking.appointmentDate);
+    
+    // Parse duration string to get minutes (e.g., "30 minutes" -> 30)
+    const durationStr = booking.testId.duration || "30 minutes";
+    const durationMatch = durationStr.match(/(\d+)/);
+    const durationMinutes = durationMatch ? parseInt(durationMatch[1]) : 30;
+    
+    const reportAvailableTime = new Date(appointmentTime.getTime() + (durationMinutes * 60 * 1000)); // duration after appointment
+    const isReportAvailable = currentTime >= reportAvailableTime || booking.status === 'completed';
+
+    const bookingWithReportStatus = {
+      ...booking.toObject(),
+      reportAvailable: isReportAvailable,
+      reportAvailableTime: reportAvailableTime
+    };
+
     res.json({
       success: true,
-      data: booking
+      data: bookingWithReportStatus
     });
 
   } catch (error) {
