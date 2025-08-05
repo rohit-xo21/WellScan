@@ -32,4 +32,9 @@ export const bookingsAPI = {
   cancel: (id) => api.patch(`/bookings/${id}/cancel`),
 }
 
+// Reports API calls
+export const reportsAPI = {
+  download: (bookingId) => api.get(`/reports/${bookingId}`, { responseType: 'blob' }),
+}
+
 export default api

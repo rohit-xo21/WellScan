@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider } from './contexts/AuthContext'
+import { AuthProvider } from './contexts/AuthContext.jsx'
+import { ToastProvider } from './contexts/ToastContext.jsx'
 import Navbar from './components/Navbar'
+import ErrorBoundary from './components/ErrorBoundary'
 import Home from './pages/Home'
 import Register from './pages/Register'
 import Login from './pages/Login'
@@ -11,8 +13,10 @@ import './App.css'
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <ErrorBoundary>
+      <ToastProvider>
+        <AuthProvider>
+          <Router>
         <div className="min-h-screen bg-white">
           <Navbar />
           <main style={{ paddingTop: '70px' }}>
@@ -40,8 +44,10 @@ function App() {
           </Routes>
           </main>
         </div>
-      </Router>
-    </AuthProvider>
+          </Router>
+        </AuthProvider>
+      </ToastProvider>
+    </ErrorBoundary>
   )
 }
 

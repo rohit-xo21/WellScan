@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { testsAPI, bookingsAPI } from '../services/api'
+import { useToast } from '../contexts/useToast'
 import { 
   Droplets, 
   TestTube, 
@@ -25,6 +26,7 @@ const TestCatalog = () => {
   const [notes, setNotes] = useState('')
   const [bookingLoading, setBookingLoading] = useState(false)
   const [categories, setCategories] = useState(['All'])
+  const toast = useToast()
 
   useEffect(() => {
     fetchTests()
@@ -82,7 +84,7 @@ const TestCatalog = () => {
 
   const submitBooking = async () => {
     if (!appointmentDate) {
-      alert('Please select an appointment date')
+      toast.warning('Please select an appointment date')
       return
     }
 
@@ -95,11 +97,14 @@ const TestCatalog = () => {
       })
 
       if (response.data.success) {
-        alert('Booking confirmed successfully!')
+        toast.success('Booking confirmed successfully!')
         setBookingTest(null)
+        setAppointmentDate('')
+        setNotes('')
       }
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to book test')
+    } catch (error) {
+      console.error('Booking error:', error)
+      toast.error(error.response?.data?.message || 'Failed to book test. Please try again.')
     } finally {
       setBookingLoading(false)
     }
@@ -107,8 +112,11 @@ const TestCatalog = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading available tests...</p>
+        </div>
       </div>
     )
   }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { bookingsAPI } from '../services/api'
+import { bookingsAPI, reportsAPI } from '../services/api'
+import { useToast } from '../contexts/useToast'
 import { 
   Droplets, 
   TestTube, 
@@ -21,6 +22,9 @@ const BookingHistory = () => {
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [downloadingReports, setDownloadingReports] = useState(new Set())
+  const [cancellingBooking, setCancellingBooking] = useState(null)
+  const toast = useToast()
 
   // Icon mapping for different test categories
   const getCategoryIcon = (category) => {
@@ -49,12 +53,14 @@ const BookingHistory = () => {
 
   const fetchBookings = async () => {
     try {
+      setError('')
       const response = await bookingsAPI.getHistory()
       if (response.data.success) {
         setBookings(response.data.data)
       }
-    } catch (err) {
-      setError('Failed to fetch booking history')
+    } catch (error) {
+      console.error('Fetch bookings error:', error)
+      setError('Failed to fetch booking history. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -84,54 +90,106 @@ const BookingHistory = () => {
   }
 
   const handleCancelBooking = async (bookingId) => {
-    if (!confirm('Are you sure you want to cancel this booking?')) {
-      return
-    }
+    // Set the booking that's being considered for cancellation
+    setCancellingBooking(bookingId)
+  }
+
+  const confirmCancelBooking = async () => {
+    if (!cancellingBooking) return
 
     try {
-      const response = await bookingsAPI.cancel(bookingId)
+      const response = await bookingsAPI.cancel(cancellingBooking)
       if (response.data.success) {
         setBookings(bookings.map(booking => 
-          booking._id === bookingId 
+          booking._id === cancellingBooking 
             ? { ...booking, status: 'cancelled' }
             : booking
         ))
-        alert('Booking cancelled successfully')
+        toast.success('Booking cancelled successfully')
       }
-    } catch (err) {
-      alert('Failed to cancel booking')
+    } catch (error) {
+      console.error('Cancel booking error:', error)
+      toast.error('Failed to cancel booking. Please try again.')
+    } finally {
+      setCancellingBooking(null)
     }
   }
 
-  const downloadReport = (bookingId) => {
-    // Simulated report download
-    const link = document.createElement('a')
-    link.href = `http://localhost:5000/api/reports/${bookingId}`
-    link.download = `report-${bookingId}.pdf`
-    link.click()
+  const cancelCancelBooking = () => {
+    setCancellingBooking(null)
+  }
+
+  const downloadReport = async (bookingId) => {
+    if (downloadingReports.has(bookingId)) {
+      return // Already downloading
+    }
+
+    try {
+      setDownloadingReports(prev => new Set([...prev, bookingId]))
+      const response = await reportsAPI.download(bookingId)
+      
+      // Create blob and download file
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `Lab-Report-${bookingId}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+
+      // Update booking to show report as generated (optional)
+      setBookings(prev => prev.map(booking => 
+        booking._id === bookingId 
+          ? { ...booking, reportGenerated: true }
+          : booking
+      ))
+
+      toast.success('Report downloaded successfully')
+
+    } catch (error) {
+      console.error('Download error:', error)
+      if (error.response?.status === 403) {
+        toast.error('Report not available yet. Please wait until after your appointment.')
+      } else {
+        toast.error('Failed to download report. Please try again.')
+      }
+    } finally {
+      setDownloadingReports(prev => {
+        const newSet = new Set([...prev])
+        newSet.delete(bookingId)
+        return newSet
+      })
+    }
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your booking history...</p>
+        </div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-white py-12">
-        <div className="container mx-auto px-4 text-center">
-          <div className="bg-red-50 border border-red-200 rounded p-6 max-w-md mx-auto">
-            <p className="text-red-600">{error}</p>
-            <button 
-              onClick={fetchBookings}
-              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              Try Again
-            </button>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Unable to load bookings</h3>
+          <p className="text-gray-600 mb-6 max-w-md">{error}</p>
+          <button 
+            onClick={fetchBookings}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     )
@@ -242,17 +300,41 @@ const BookingHistory = () => {
 
                         {/* Actions */}
                         <div className="flex gap-2">
-                          {booking.status === 'completed' && booking.reportGenerated && (
+                          {/* Report Download - Available 2 hours after appointment or when completed */}
+                          {booking.reportAvailable && (
                             <button
                               onClick={() => downloadReport(booking._id)}
-                              className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                              disabled={downloadingReports.has(booking._id)}
+                              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                downloadingReports.has(booking._id)
+                                  ? 'bg-gray-400 text-white cursor-not-allowed'
+                                  : 'bg-green-600 text-white hover:bg-green-700'
+                              }`}
                             >
-                              <Download className="w-4 h-4" />
-                              Download Report
+                              {downloadingReports.has(booking._id) ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                  Downloading...
+                                </>
+                              ) : (
+                                <>
+                                  <Download className="w-4 h-4" />
+                                  Download Report
+                                </>
+                              )}
                             </button>
                           )}
+
+                          {/* Report Not Available Yet */}
+                          {!booking.reportAvailable && booking.status === 'scheduled' && new Date(booking.appointmentDate) <= new Date() && (
+                            <div className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm bg-yellow-50 text-yellow-700 border border-yellow-200">
+                              <Clock className="w-4 h-4" />
+                              Report available {new Date(booking.reportAvailableTime).toLocaleString()}
+                            </div>
+                          )}
                           
-                          {booking.status === 'scheduled' && (
+                          {/* Cancel Button for Future Appointments */}
+                          {booking.status === 'scheduled' && new Date(booking.appointmentDate) > new Date() && (
                             <button
                               onClick={() => handleCancelBooking(booking._id)}
                               className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
@@ -278,6 +360,37 @@ const BookingHistory = () => {
           )}
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {cancellingBooking && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-mx-4 shadow-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-red-100 p-2 rounded-full">
+                <AlertCircle className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Cancel Booking</h3>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to cancel this booking? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={cancelCancelBooking}
+                className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Keep Booking
+              </button>
+              <button
+                onClick={confirmCancelBooking}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Cancel Booking
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
