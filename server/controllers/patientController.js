@@ -69,12 +69,13 @@ const registerPatient = async (req, res) => {
     // Generate token
     const token = generateToken(patient._id);
 
-    // Set token as HTTP-only cookie
+    // Set token as HTTP-only cookie for cross-domain authentication
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Allow cross-domain cookies in production
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined // Set domain for production
     });
 
     res.status(201).json({
@@ -82,7 +83,7 @@ const registerPatient = async (req, res) => {
       message: 'Patient registered successfully',
       data: {
         patient,
-        token // Still include in response for frontend compatibility
+        token // Include in response for frontend to store in localStorage as fallback
       }
     });
 
@@ -161,12 +162,13 @@ const loginPatient = async (req, res) => {
     // Generate token
     const token = generateToken(patient._id);
 
-    // Set token as HTTP-only cookie
+    // Set token as HTTP-only cookie for cross-domain authentication
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Allow cross-domain cookies in production
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined // Set domain for production
     });
 
     // Remove password from patient object
@@ -177,7 +179,7 @@ const loginPatient = async (req, res) => {
       message: 'Login successful',
       data: {
         patient,
-        token // Still include in response for frontend compatibility
+        token // Include in response for frontend to store in localStorage as fallback
       }
     });
 

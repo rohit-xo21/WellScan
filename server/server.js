@@ -64,7 +64,8 @@ app.use(cors({
   },
   credentials: true, // Allow cookies for JWT authentication
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Authorization'] // Expose authorization header to frontend
 }));
 
 // Middleware setup

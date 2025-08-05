@@ -28,6 +28,10 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.login(email, password)
       if (response.data.success) {
         setUser(response.data.data.patient)
+        // Store token in localStorage as fallback for cross-domain issues
+        if (response.data.data.token) {
+          localStorage.setItem('token', response.data.data.token)
+        }
         return { success: true }
       }
     } catch (error) {
@@ -43,6 +47,10 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.register(userData)
       if (response.data.success) {
         setUser(response.data.data.patient)
+        // Store token in localStorage as fallback for cross-domain issues
+        if (response.data.data.token) {
+          localStorage.setItem('token', response.data.data.token)
+        }
         return { success: true }
       }
     } catch (error) {
@@ -61,6 +69,7 @@ export const AuthProvider = ({ children }) => {
       console.log('Logout error:', error)
     } finally {
       setUser(null)
+      localStorage.removeItem('token') // Clear token from localStorage
     }
   }
 
