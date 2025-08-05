@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { AuthContext } from './AuthContext.js'
 import { authAPI } from '../services/api'
+import { storeAuthToken, clearAuthToken, getAuthToken } from '../utils/cookies'
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
@@ -28,9 +29,9 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.login(email, password)
       if (response.data.success) {
         setUser(response.data.data.patient)
-        // Store token in localStorage as fallback for cross-domain issues
+        // Store token in both localStorage and cookies for cross-domain compatibility
         if (response.data.data.token) {
-          localStorage.setItem('token', response.data.data.token)
+          storeAuthToken(response.data.data.token)
         }
         return { success: true }
       }
@@ -47,9 +48,9 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.register(userData)
       if (response.data.success) {
         setUser(response.data.data.patient)
-        // Store token in localStorage as fallback for cross-domain issues
+        // Store token in both localStorage and cookies for cross-domain compatibility
         if (response.data.data.token) {
-          localStorage.setItem('token', response.data.data.token)
+          storeAuthToken(response.data.data.token)
         }
         return { success: true }
       }
@@ -69,7 +70,7 @@ export const AuthProvider = ({ children }) => {
       console.log('Logout error:', error)
     } finally {
       setUser(null)
-      localStorage.removeItem('token') // Clear token from localStorage
+      clearAuthToken() // Clear both localStorage and cookies
     }
   }
 
