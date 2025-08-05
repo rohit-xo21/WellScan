@@ -69,13 +69,22 @@ const registerPatient = async (req, res) => {
     // Generate token
     const token = generateToken(patient._id);
 
-    // Set token as cookie for cross-domain authentication - allow all domains
-    res.cookie('token', token, {
-      httpOnly: false, // Allow frontend access for cross-domain issues
-      secure: true, // Always use secure cookies for HTTPS
-      sameSite: 'none', // Allow cross-domain cookies for all environments
+    // Set multiple cookie configurations for maximum compatibility
+    const cookieOptions = {
+      httpOnly: false, // Allow frontend JavaScript access
+      secure: true, // Always secure for HTTPS
+      sameSite: 'none', // Allow cross-origin requests
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      path: '/' // Available on all paths
+      path: '/', // Available on all paths
+    };
+
+    // Set the main token cookie
+    res.cookie('token', token, cookieOptions);
+    
+    // Set additional fallback cookie without httpOnly for client access
+    res.cookie('authToken', token, {
+      ...cookieOptions,
+      httpOnly: false
     });
 
     res.status(201).json({
@@ -162,13 +171,22 @@ const loginPatient = async (req, res) => {
     // Generate token
     const token = generateToken(patient._id);
 
-    // Set token as cookie for cross-domain authentication - allow all domains
-    res.cookie('token', token, {
-      httpOnly: false, // Allow frontend access for cross-domain issues
-      secure: true, // Always use secure cookies for HTTPS
-      sameSite: 'none', // Allow cross-domain cookies for all environments
+    // Set multiple cookie configurations for maximum compatibility
+    const cookieOptions = {
+      httpOnly: false, // Allow frontend JavaScript access
+      secure: true, // Always secure for HTTPS
+      sameSite: 'none', // Allow cross-origin requests
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      path: '/' // Available on all paths
+      path: '/', // Available on all paths
+    };
+
+    // Set the main token cookie
+    res.cookie('token', token, cookieOptions);
+    
+    // Set additional fallback cookie without httpOnly for client access
+    res.cookie('authToken', token, {
+      ...cookieOptions,
+      httpOnly: false
     });
 
     // Remove password from patient object
@@ -196,12 +214,15 @@ const loginPatient = async (req, res) => {
 // Logout patient
 const logoutPatient = async (req, res) => {
   try {
-    // Clear the token cookie with same settings as when it was set
-    res.clearCookie('token', {
+    // Clear all authentication cookies with same settings as when they were set
+    const clearOptions = {
       secure: true,
       sameSite: 'none',
       path: '/'
-    });
+    };
+    
+    res.clearCookie('token', clearOptions);
+    res.clearCookie('authToken', clearOptions);
 
     res.json({
       success: true,

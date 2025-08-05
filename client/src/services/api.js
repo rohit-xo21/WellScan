@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { getAuthToken } from '../utils/cookies'
+import { getAuthToken, clearAuthToken } from '../utils/cookies'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
@@ -26,11 +26,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Import clearAuthToken dynamically to avoid circular imports
-      import('../utils/cookies').then(({ clearAuthToken }) => {
-        clearAuthToken()
-        window.location.href = '/login'
-      })
+      clearAuthToken()
+      window.location.href = '/login'
     }
     return Promise.reject(error)
   }

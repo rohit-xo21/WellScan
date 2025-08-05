@@ -5,11 +5,19 @@ const auth = async (req, res, next) => {
   try {
     let token;
 
-    // Check for token in header first, then in cookies
+    // Check multiple sources for token (comprehensive fallback)
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      // 1. Authorization header (most reliable for cross-domain)
       token = req.headers.authorization.split(' ')[1];
     } else if (req.cookies && req.cookies.token) {
+      // 2. Main token cookie
       token = req.cookies.token;
+    } else if (req.cookies && req.cookies.authToken) {
+      // 3. Fallback authToken cookie
+      token = req.cookies.authToken;
+    } else if (req.headers['x-auth-token']) {
+      // 4. Custom header fallback
+      token = req.headers['x-auth-token'];
     }
 
     if (!token) {

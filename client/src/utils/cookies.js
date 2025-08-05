@@ -32,16 +32,16 @@ export const deleteCookie = (name) => {
 }
 
 /**
- * Get authentication token from localStorage or cookies
+ * Get authentication token from localStorage or cookies (multiple fallbacks)
  * @returns {string|null} Authentication token
  */
 export const getAuthToken = () => {
   // First try localStorage
   let token = localStorage.getItem('token')
   
-  // If no localStorage token, try cookies
+  // If no localStorage token, try multiple cookie names
   if (!token) {
-    token = getCookie('token')
+    token = getCookie('token') || getCookie('authToken')
   }
   
   return token
@@ -54,6 +54,7 @@ export const getAuthToken = () => {
 export const storeAuthToken = (token) => {
   localStorage.setItem('token', token)
   setCookie('token', token, 30)
+  setCookie('authToken', token, 30) // Fallback cookie
 }
 
 /**
@@ -62,4 +63,5 @@ export const storeAuthToken = (token) => {
 export const clearAuthToken = () => {
   localStorage.removeItem('token')
   deleteCookie('token')
+  deleteCookie('authToken')
 }
