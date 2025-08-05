@@ -300,8 +300,8 @@ const BookingHistory = () => {
 
                         {/* Actions */}
                         <div className="flex gap-2">
-                          {/* Report Download - Available 2 hours after appointment or when completed */}
-                          {booking.reportAvailable && (
+                          {/* Report Download - Available 2 hours after appointment or when completed, but not for cancelled appointments */}
+                          {booking.reportAvailable && booking.status !== 'cancelled' && (
                             <button
                               onClick={() => downloadReport(booking._id)}
                               disabled={downloadingReports.has(booking._id)}
@@ -325,11 +325,19 @@ const BookingHistory = () => {
                             </button>
                           )}
 
-                          {/* Report Not Available Yet */}
+                          {/* Report Not Available Yet - Only for scheduled appointments */}
                           {!booking.reportAvailable && booking.status === 'scheduled' && isPast(booking.appointmentDate) && (
                             <div className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm bg-yellow-50 text-yellow-700 border border-yellow-200">
                               <Clock className="w-4 h-4" />
                               Report available {formatReportAvailableTime(booking.reportAvailableTime)}
+                            </div>
+                          )}
+
+                          {/* Cancelled Appointment Message */}
+                          {booking.status === 'cancelled' && (
+                            <div className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm bg-red-50 text-red-700 border border-red-200">
+                              <X className="w-4 h-4" />
+                              Appointment Cancelled
                             </div>
                           )}
                           
