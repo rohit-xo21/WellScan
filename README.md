@@ -1,4 +1,4 @@
-# WellScan - Lab Tests Booking System
+# <img src="client/src/assets/logo.png" alt="WellScan Logo" width="40" height="40" style="vertical-align: middle;"> WellScan - Lab Tests Booking System
 
 A full-stack patient portal for digital health clinic allowing patients to register, view lab tests, book appointments, and download reports.
 
@@ -9,7 +9,6 @@ A full-stack patient portal for digital health clinic allowing patients to regis
 - **Backend:** Node.js + Express
 - **Database:** MongoDB
 - **Authentication:** JWT
-- **File Upload:** Multer
 - **Validation:** Express Validator
 - **Password Hashing:** bcryptjs
 
