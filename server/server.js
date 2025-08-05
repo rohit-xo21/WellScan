@@ -1,3 +1,13 @@
+/**
+ * WellScan API Server
+ * 
+ * Main entry point for the Patient Lab Test Portal backend
+ * Handles authentication, bookings, tests, and patient management
+ * 
+ * @author WellScan Team
+ * @version 1.0.0
+ */
+
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -6,41 +16,55 @@ const cookieParser = require('cookie-parser');
 const connectDB = require('./config/database');
 const { seedTests } = require('./utils/seedData');
 
-// Load environment variables
+// Load environment variables from .env file
 dotenv.config();
 
-// Connect to MongoDB
+// Establish MongoDB connection and seed initial test data
 connectDB().then(() => {
-  // Seed initial data after database connection
+  console.log('Database connected successfully');
+  // Seed initial lab tests data after database connection
   seedTests();
+}).catch(err => {
+  console.error('Database connection failed:', err);
+  process.exit(1);
 });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Basic middleware
+// CORS configuration for cross-origin requests
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true
+  credentials: true // Allow cookies for JWT authentication
 }));
 
-app.use(cookieParser());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Middleware setup
+app.use(cookieParser()); // Parse cookies for JWT tokens
+app.use(express.json({ limit: '10mb' })); // Parse JSON requests with size limit
+app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded requests
 
-// Static files for uploads
+// Serve static files for uploaded content (reports, etc.)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Basic route
+/**
+ * Root endpoint - API information
+ * @route GET /
+ * @returns {Object} API status and version info
+ */
 app.get('/', (req, res) => {
   res.json({
     message: 'WellScan API Server',
     status: 'Running',
-    version: '1.0.0'
+    version: '1.0.0',
+    documentation: '/api/docs'
   });
 });
 
-// Health check endpoint
+/**
+ * Health check endpoint for monitoring
+ * @route GET /health
+ * @returns {Object} Server and database health status
+ */
 app.get('/health', (req, res) => {
   const mongoose = require('mongoose');
   const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';

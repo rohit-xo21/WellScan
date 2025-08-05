@@ -1,3 +1,20 @@
+/**
+ * Test Catalog Component
+ * 
+ * Displays available lab tests with filtering, booking functionality, and responsive design.
+ * Features include:
+ * - Test filtering by category
+ * - Real-time booking with appointment scheduling
+ * - Smart form validation and error handling
+ * - Mobile-responsive design with professional UI
+ * 
+ * @component
+ * @example
+ * return (
+ *   <TestCatalog />
+ * )
+ */
+
 import { useState, useEffect } from 'react'
 import { testsAPI, bookingsAPI } from '../services/api'
 import { useToast } from '../contexts/useToast'
@@ -17,16 +34,17 @@ import {
 } from 'lucide-react'
 
 const TestCatalog = () => {
-  const [tests, setTests] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('All')
-  const [bookingTest, setBookingTest] = useState(null)
-  const [appointmentDate, setAppointmentDate] = useState('')
-  const [notes, setNotes] = useState('')
-  const [bookingLoading, setBookingLoading] = useState(false)
-  const [categories, setCategories] = useState(['All'])
-  const toast = useToast()
+  // State management for test catalog functionality
+  const [tests, setTests] = useState([]) // All available tests
+  const [loading, setLoading] = useState(true) // Loading state for initial data fetch
+  const [error, setError] = useState('') // Error state for API failures
+  const [selectedCategory, setSelectedCategory] = useState('All') // Active filter category
+  const [bookingTest, setBookingTest] = useState(null) // Currently selected test for booking
+  const [appointmentDate, setAppointmentDate] = useState('') // Selected appointment date/time
+  const [notes, setNotes] = useState('') // Optional booking notes
+  const [bookingLoading, setBookingLoading] = useState(false) // Loading state for booking submission
+  const [categories, setCategories] = useState(['All']) // Available test categories
+  const toast = useToast() // Toast notification hook
 
   useEffect(() => {
     fetchTests()

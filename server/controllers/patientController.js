@@ -1,18 +1,42 @@
+/**
+ * Patient Controller
+ * 
+ * Handles patient registration, authentication, and profile management.
+ * Implements secure JWT-based authentication with comprehensive validation.
+ * 
+ * @module controllers/patientController
+ */
+
 const { Patient } = require('../models');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 
-// Generate JWT token
+/**
+ * Generate JWT token for authenticated user
+ * 
+ * @param {string} id - Patient ID to encode in token
+ * @returns {string} Signed JWT token with 30-day expiration
+ */
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: '30d',
   });
 };
 
-// Register new patient
+/**
+ * Register a new patient account
+ * 
+ * Creates new patient with validation, duplicate checking, and secure password hashing.
+ * Returns JWT token for immediate authentication after registration.
+ * 
+ * @route POST /api/patients/register
+ * @access Public
+ * @param {Object} req.body - { name, email, phone, dateOfBirth, password }
+ * @returns {Object} Patient data and JWT token
+ */
 const registerPatient = async (req, res) => {
   try {
-    // Check for validation errors
+    // Validate request data using express-validator middleware
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -24,7 +48,7 @@ const registerPatient = async (req, res) => {
 
     const { name, email, phone, dateOfBirth, password } = req.body;
 
-    // Check if patient already exists
+    // Prevent duplicate account creation with same email
     const existingPatient = await Patient.findOne({ email });
     if (existingPatient) {
       return res.status(400).json({

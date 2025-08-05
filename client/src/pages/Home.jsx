@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { testsAPI } from '../services/api'
+import { useAuth } from '../contexts/useAuth'
 import scientistImage from '../assets/hero-image-mobile.png'
 import modernLabImage from '../assets/hero-image-desktop.jpg'
 import footerImage from '../assets/footer-image.png'
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react'
 
 const Home = () => {
+  const { user } = useAuth() // Get current user authentication status
   const [featuredTests, setFeaturedTests] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -243,7 +245,7 @@ const Home = () => {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid lg:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center mb-4">
                 <span className="text-xl font-bold">WellScan</span>
@@ -255,38 +257,37 @@ const Home = () => {
               </p>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="font-semibold mb-4">SERVICES</h3>
-                <ul className="space-y-2 text-gray-400">
-                  <li><Link to="/tests" className="hover:text-white transition-colors">Lab Tests</Link></li>
-                  <li><Link to="/bookings" className="hover:text-white transition-colors">My Bookings</Link></li>
-                  <li><Link to="/reports" className="hover:text-white transition-colors">Test Reports</Link></li>
-                  <li><Link to="/help" className="hover:text-white transition-colors">Help & Support</Link></li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-4">CONTACT INFO</h3>
-                <ul className="space-y-2 text-gray-400">
-                  <li className="flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
-                    <span>+1-800-WELLSCAN</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    <span>support@wellscan.com</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    <span>Mon-Sat 8AM-8PM</span>
-                  </li>
-                </ul>
+            <div>
+              <h3 className="font-semibold mb-4">OUR SERVICES</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><Link to="/tests" className="hover:text-white transition-colors">Tests</Link></li>
+                <li><Link to="/bookings" className="hover:text-white transition-colors">My Bookings</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-4">QUICK LINKS</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><Link to="/tests" className="hover:text-white transition-colors">Browse All Tests</Link></li>
+                <li><Link to="/bookings" className="hover:text-white transition-colors">Booking History</Link></li>
+                {!user && (
+                  <>
+                    <li><Link to="/login" className="hover:text-white transition-colors">Login</Link></li>
+                    <li><Link to="/register" className="hover:text-white transition-colors">Create Account</Link></li>
+                  </>
+                )}
+              </ul>
+              
+              <div className="mt-6">
+                <h4 className="font-medium mb-2">Contact</h4>
+                <p className="text-gray-400 text-sm">support@wellscan.com</p>
+                <p className="text-gray-400 text-sm">Mon-Sat 8AM-8PM</p>
               </div>
             </div>
           </div>
           
           <div className="border-t border-gray-800 mt-8 pt-4 text-center text-gray-400">
-            <p>© 2024 WellScan. All rights reserved. | Privacy Policy | Terms of Service</p>
+            <p>© 2024 WellScan. All rights reserved.</p>
           </div>
         </div>
       </footer>

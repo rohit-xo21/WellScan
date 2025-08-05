@@ -1,10 +1,31 @@
+/**
+ * Booking Controller
+ * 
+ * Handles all booking-related operations including:
+ * - Creating new lab test bookings with overlap validation
+ * - Retrieving patient booking history
+ * - Managing booking status updates
+ * 
+ * @module controllers/bookingController
+ */
+
 const { Booking, Test } = require('../models');
 const { validationResult } = require('express-validator');
 
-// Create new booking
+/**
+ * Create a new lab test booking
+ * 
+ * Validates appointment time against existing bookings to prevent overlaps
+ * Uses test duration to calculate potential time conflicts
+ * 
+ * @route POST /api/bookings
+ * @access Private (requires JWT authentication)
+ * @param {Object} req.body - { testId, appointmentDate, notes }
+ * @returns {Object} Created booking with populated test details
+ */
 const createBooking = async (req, res) => {
   try {
-    // Check for validation errors
+    // Validate request data using express-validator
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -15,9 +36,9 @@ const createBooking = async (req, res) => {
     }
 
     const { testId, appointmentDate, notes } = req.body;
-    const patientId = req.patient.id;
+    const patientId = req.patient.id; // From JWT authentication middleware
 
-    // Check if test exists and is active
+    // Verify test exists and is available for booking
     const test = await Test.findById(testId);
     if (!test || !test.isActive) {
       return res.status(404).json({
@@ -26,7 +47,7 @@ const createBooking = async (req, res) => {
       });
     }
 
-    // Check for existing booking on same date
+    // Check for duplicate booking (same patient + same test + same date)
     const existingBooking = await Booking.findOne({
       patientId,
       testId,
@@ -42,6 +63,50 @@ const createBooking = async (req, res) => {
         success: false,
         message: 'You already have a booking for this test on the selected date'
       });
+    }
+
+    // Check for overlapping appointments with other tests using duration
+    const appointmentTime = new Date(appointmentDate);
+    
+    // Parse current test duration to get minutes
+    const currentTestDurationStr = test.duration || "30 minutes";
+    const currentTestDurationMatch = currentTestDurationStr.match(/(\d+)/);
+    const currentTestDurationMinutes = currentTestDurationMatch ? parseInt(currentTestDurationMatch[1]) : 30;
+    
+    // Calculate end time for current appointment
+    const currentTestEndTime = new Date(appointmentTime.getTime() + (currentTestDurationMinutes * 60 * 1000));
+    
+    // Find all existing appointments for this patient on the same day
+    const existingAppointments = await Booking.find({
+      patientId,
+      appointmentDate: {
+        $gte: new Date(appointmentDate).setHours(0, 0, 0, 0),
+        $lt: new Date(appointmentDate).setHours(23, 59, 59, 999)
+      },
+      status: { $ne: 'cancelled' }
+    }).populate('testId', 'duration name');
+
+    // Check for time conflicts with existing appointments
+    for (const existingAppt of existingAppointments) {
+      const existingStartTime = new Date(existingAppt.appointmentDate);
+      
+      // Parse existing test duration
+      const existingTestDurationStr = existingAppt.testId.duration || "30 minutes";
+      const existingTestDurationMatch = existingTestDurationStr.match(/(\d+)/);
+      const existingTestDurationMinutes = existingTestDurationMatch ? parseInt(existingTestDurationMatch[1]) : 30;
+      
+      // Calculate end time for existing appointment
+      const existingEndTime = new Date(existingStartTime.getTime() + (existingTestDurationMinutes * 60 * 1000));
+      
+      // Check if appointments overlap
+      const hasOverlap = (appointmentTime < existingEndTime) && (currentTestEndTime > existingStartTime);
+      
+      if (hasOverlap) {
+        return res.status(400).json({
+          success: false,
+          message: `This appointment conflicts with your existing ${existingAppt.testId.name} appointment at ${existingStartTime.toLocaleTimeString()}. Please choose a different time.`
+        });
+      }
     }
 
     // Create booking
